@@ -1,0 +1,1 @@
+float, healthDecrease, 6.01, 6.2, 6.61, 1, 6.01, %v, 2
