@@ -18,10 +18,16 @@ otherwise, you can delete the "VIDEOS_ALLOWED" Line on Project.xml
 ## Credits:
 * Lokitot - Programmer
 * RiverOaken - Additonal Programmer
-* Ney - Idk
+* Ney - Composed the freaky menu theme, Emotional support <3
+
+## Engine Beta Testers:
+* Machine - Tested the goofy engine
 
 ### Special Thanks
-* shubs - New Input System
+* Shadow Mario - Psych engine
+* RiverOaken - Animator/Artist of Psych Engine
+* shubs - Additional Programmer of Psych Engine/New Input System
+* bb-panzu - Ex-programmer of Psych Engine (cool man ngl)
 * SqirraRNG - Crash Handler and Base code for Chart Editor's Waveform
 * KadeDev - Fixed some cool stuff on Chart Editor and other PRs
 * iFlicky - Composer of Psync and Tea Time, also made the Dialogue Sounds
@@ -63,6 +69,10 @@ _____________________________________
 ### Week 6:
   * On Thorns, the HUD is hidden during the cutscene
   * Also there's the Background girls being spooky during the "Hey!" parts of the Instrumental
+  ### Week 7:
+  * Newgrounds update just come to the engine
+  * Cool cutscenes lol
+
 
 ## Cool new Chart Editor changes and countless bug fixes
 ![](https://github.com/ShadowMario/FNF-PsychEngine/blob/main/docs/img/chart.png?raw=true)
