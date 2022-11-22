@@ -8,7 +8,7 @@ To install LuaJIT do this: `haxelib git linc_luajit https://github.com/nebulazor
 
 ...Or if you don't want your mod to be able to run .lua scripts, delete the "LUA_ALLOWED" line on Project.xml
 
-YOU NEED TO INSTALL hxcpp-debug-server TO COMPILE
+YOU NEED TO INSTALL hxcpp-debug-server TO COMPILE DEBUG VERSION!!1!111
 
 `haxelib install hxcpp-debug-server 1.2.4`
 
