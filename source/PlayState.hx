@@ -79,12 +79,13 @@ class PlayState extends MusicBeatState
 		['FFF', 0.4], //From 20% to 39%
 		['F', 0.5], //From 40% to 49%
 		['D', 0.6], //From 50% to 59%
-		['C', 0.69], //From 60% to 68%
-		['B', 0.7], //69%
-		['A', 0.8], //From 70% to 79%
-		['AA', 0.9], //From 80% to 89%
-		['AAA', 1], //From 90% to 99%
-		['AAAA', 1] //The value on this one isn't used actually, since AAAA is always "1" lol
+		['C', 0.69], //From 59% to 69%
+		['B', 0.7], //From 70% to 79%
+		['A', 0.8], //From 80% to 89%
+		['S', 0.85], //From 80% to 89%
+		['SS', 0.9], //From 90% to 95%
+		['SSS', 0.95], //From 95% to 100%
+		['SSSS', 1] //100%
 	];
 	public var modchartTweens:Map<String, FlxTween> = new Map<String, FlxTween>();
 	public var modchartSprites:Map<String, ModchartSprite> = new Map<String, ModchartSprite>();
@@ -2176,12 +2177,12 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function updateScore(miss:Bool = false)
+	public function updateScore(miss:Bool = false) // score combo breaks accuracy and rank shit
 	{
 		scoreTxt.text = 'Score: ' + songScore
 		+ ' • Combo Breaks: ' + songMisses
 		+ ' • Accuracy: ' + ratingName
-		+ (ratingName != '?' ? ' (${Highscore.floorDecimal(ratingPercent * 100, 2)}%) - $ratingFC' : '');
+		+ ' • Rank:' + (ratingName != '?' ? ' (${Highscore.floorDecimal(ratingPercent * 100, 2)}%) - $ratingFC' : '');
 
 		if(ClientPrefs.scoreZoom && !miss && !cpuControlled)
 		{
