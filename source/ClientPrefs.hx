@@ -237,7 +237,7 @@ class ClientPrefs {
 			ghostTapping = FlxG.save.data.ghostTapping;
 		}
 		if(FlxG.save.data.msCounter != null) {
-			ghostTapping = FlxG.save.data.msCounter;
+			msCounter = FlxG.save.data.msCounter;
 		}
 		if(FlxG.save.data.timeBarType != null) {
 			timeBarType = FlxG.save.data.timeBarType;

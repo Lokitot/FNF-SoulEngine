@@ -71,11 +71,11 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Disable Ms Counter',
-		"If unchecked, milliseconds precision will be not displayed up your notes.",
-		'msCounter',
-		'bool',
-		true);
-	addOption(option);
+		    "If unchecked, milliseconds precision will be not displayed up your notes.",
+		    'msCounter',
+		    'bool',
+		    true);
+	    addOption(option);
 
 		#if desktop
 		var option:Option = new Option('Auto Pause',
