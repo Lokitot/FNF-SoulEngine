@@ -34,6 +34,7 @@ class CreditsState extends MusicBeatState
 	var intendedColor:Int;
 	var colorTween:FlxTween;
 	var descBox:AttachedSprite;
+	var noLink:Bool;
 
 	var offsetThing:Float = -75;
 
@@ -44,10 +45,18 @@ class CreditsState extends MusicBeatState
 		DiscordClient.changePresence("In The Credits", null);
 		#end
 
-		persistentUpdate = true;
-		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		add(bg);
-		bg.screenCenter();
+		if (ClientPrefs.darkMode)
+			{
+				bg = new FlxSprite().loadGraphic(Paths.image('darkmode/menuDesatDark'));
+				add(bg);
+				bg.screenCenter();
+			}
+			else
+			{
+				bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+				add(bg);
+				bg.screenCenter();
+			}
 		
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
@@ -80,7 +89,7 @@ class CreditsState extends MusicBeatState
 		}
 		#end
 
-		var pisspoop:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
+		var pisspoop:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color     (Goofy note: if you don't want to put a link in your credits just put "nolink" in the link section, alr see ya)
 			['Soul Engine Team'],
 			['Lokitot',		        'loki',		        'Main Programmer of Soul Engine',								'https://twitter.com/l0kit0t',	        'FFFFFF'],
 			['Frenafloo',     		'frena',			'Additional Programmer of Soul Engine',						    'https://twitter.com/FrenanQue:',		'00AF14'],
@@ -213,10 +222,23 @@ class CreditsState extends MusicBeatState
 					}
 				}
 			}
+			
+			if(creditsStuff[curSelected][3] == 'nolink') {
 
-			if(controls.ACCEPT && (creditsStuff[curSelected][3] == null || creditsStuff[curSelected][3].length > 4)) {
+				noLink = true;
+			}else{
+				noLink = false;
+			}
+			if(noLink) {
+			if(controls.ACCEPT) {
+				FlxG.camera.shake(0.05, 0.1);
+				FlxG.sound.play(Paths.sound('badnoise1'), 1);
+			} 
+			}else {
+				if(controls.ACCEPT) {
 				CoolUtil.browserLoad(creditsStuff[curSelected][3]);
 			}
+		}
 			if (controls.BACK)
 			{
 				if(colorTween != null) {

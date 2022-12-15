@@ -53,8 +53,8 @@ class FreeplayState extends MusicBeatState
 
 	override function create()
 	{
-		//Paths.clearStoredMemory();
-		//Paths.clearUnusedMemory();
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
@@ -102,10 +102,20 @@ class FreeplayState extends MusicBeatState
 			}
 		}*/
 
-		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.antialiasing = ClientPrefs.globalAntialiasing;
-		add(bg);
-		bg.screenCenter();
+        if (ClientPrefs.darkMode)
+			{
+				bg = new FlxSprite().loadGraphic(Paths.image('darkmode/menuDesatDark'));
+				bg.antialiasing = ClientPrefs.globalAntialiasing;
+				add(bg);
+				bg.screenCenter();
+			}
+			else
+			{
+				bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+				bg.antialiasing = ClientPrefs.globalAntialiasing;
+				add(bg);
+				bg.screenCenter();
+			}
 
 		grpSongs = new FlxTypedGroup<Alphabet>();
 		add(grpSongs);
@@ -249,6 +259,9 @@ class FreeplayState extends MusicBeatState
 	var holdTime:Float = 0;
 	override function update(elapsed:Float)
 	{
+		if (FlxG.sound.music != null)
+			Conductor.songPosition = FlxG.sound.music.time;
+
 		if (FlxG.sound.music.volume < 0.7)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
@@ -273,6 +286,8 @@ class FreeplayState extends MusicBeatState
 
 		scoreText.text = 'PERSONAL BEST: ' + lerpScore + ' (' + ratingSplit.join('.') + '%)';
 		positionHighscore();
+
+		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
 
 		var upP = controls.UI_UP_P;
 		var downP = controls.UI_DOWN_P;
@@ -358,7 +373,8 @@ class FreeplayState extends MusicBeatState
 				vocals.play();
 				vocals.persist = true;
 				vocals.looped = true;
-				vocals.volume = 0.7;
+				vocals.volume = 0;            // vocals here seems to be glitched, idk why i'll try to fix it on some updates... maybe...........
+				Conductor.changeBPM(PlayState.SONG.bpm);
 				instPlaying = curSelected;
 				#end
 			}
@@ -406,6 +422,13 @@ class FreeplayState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 		super.update(elapsed);
+	}
+
+	override function beatHit() {
+		super.beatHit();
+
+		if (FlxG.camera.zoom < 1.35 && ClientPrefs.camZooms && curBeat % 1 == 0)
+			FlxG.camera.zoom += 0.015;
 	}
 
 	public static function destroyFreeplayVocals() {

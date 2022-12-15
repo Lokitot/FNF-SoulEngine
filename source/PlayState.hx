@@ -67,6 +67,10 @@ import sys.FileSystem;
 import vlc.MP4Handler;
 #end
 
+/*#if SWF_ALLOWED
+import swf.SWF;
+#end*/
+
 using StringTools;
 
 class PlayState extends MusicBeatState
@@ -93,6 +97,11 @@ class PlayState extends MusicBeatState
 	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
 	public var modchartTexts:Map<String, ModchartText> = new Map<String, ModchartText>();
 	public var modchartSaves:Map<String, FlxSave> = new Map<String, FlxSave>();
+	public var window = Lib.application.window;
+	public var windowX:Int = 320;
+	public var windowY:Int = 180;
+	public var windowW:Int = 1280;
+	public var windowH:Int = 720;
 
 	//event variables
 	private var isCameraOnForcedPos:Bool = false;
@@ -652,10 +661,6 @@ class PlayState extends MusicBeatState
 				add(evilSnow);
 
 			case 'school': //Week 6 - Senpai, Roses
-				GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
-				GameOverSubstate.loopSoundName = 'gameOver-pixel';
-				GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
-				GameOverSubstate.characterName = 'bf-pixel-dead';
 
 				var bgSky:BGSprite = new BGSprite('weeb/weebSky', 0, 0, 0.1, 0.1);
 				add(bgSky);
@@ -716,10 +721,6 @@ class PlayState extends MusicBeatState
 				}
 
 			case 'schoolEvil': //Week 6 - Thorns
-				GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
-				GameOverSubstate.loopSoundName = 'gameOver-pixel';
-				GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
-				GameOverSubstate.characterName = 'bf-pixel-dead';
 
 				/*if(!ClientPrefs.lowQuality) { //Does this even do something?
 					var waveEffectBG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 3, 2);
@@ -804,14 +805,23 @@ class PlayState extends MusicBeatState
 				foregroundSprites.add(new BGSprite('tank5', 1620, 700, 1.5, 1.5, ['fg']));
 				if(!ClientPrefs.lowQuality) foregroundSprites.add(new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']));
 		}
-
+		
+        /*
 		switch(Paths.formatToSongPath(SONG.song))
 		{
 			case 'stress':
 				GameOverSubstate.characterName = 'bf-holding-gf-dead';
 		}
+		*/
 
 		if(isPixelStage) {
+		   /*
+		   GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
+		   GameOverSubstate.loopSoundName = 'gameOver-pixel';
+		   GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
+		   GameOverSubstate.characterName = 'bf-pixel-dead';
+		   */
+			
 			introSoundsSuffix = '-pixel';
 		}
 
@@ -952,6 +962,14 @@ class PlayState extends MusicBeatState
 		boyfriendGroup.add(boyfriend);
 		startCharacterLua(boyfriend.curCharacter);
 
+		if (boyfriend != null)
+			{
+				GameOverSubstate.characterName = boyfriend.deathChar;
+				GameOverSubstate.deathSoundName = boyfriend.deathSound;
+				GameOverSubstate.loopSoundName = boyfriend.deathMusic;
+				GameOverSubstate.endSoundName = boyfriend.deathConfirm;
+			}
+
 		var camPos:FlxPoint = new FlxPoint(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);
 		if(gf != null)
 		{
@@ -1013,13 +1031,13 @@ class PlayState extends MusicBeatState
 			timeTxt.text = SONG.song;
 		}
 		updateTime = showTime;
-
+	
 		timeBarBG = new AttachedSprite('timeBar');
 		timeBarBG.x = timeTxt.x;
 		timeBarBG.y = timeTxt.y + (timeTxt.height / 4);
 		timeBarBG.scrollFactor.set();
 		timeBarBG.alpha = 0;
-		timeBarBG.visible = showTime;
+		timeBarBG.visible = !ClientPrefs.invisibleTimeBar;
 		timeBarBG.color = FlxColor.BLACK;
 		timeBarBG.xAdd = -4;
 		timeBarBG.yAdd = -4;
@@ -1031,7 +1049,7 @@ class PlayState extends MusicBeatState
 		timeBar.createFilledBar(0xFF000000, 0xFFFFFFFF);
 		timeBar.numDivisions = 800; //How much lag this causes?? Should i tone it down to idk, 400 or 200?
 		timeBar.alpha = 0;
-		timeBar.visible = showTime;
+		timeBar.visible = !ClientPrefs.invisibleTimeBar;
 		add(timeBar);
 		add(timeTxt);
 		timeBarBG.sprTracker = timeBar;
@@ -1191,15 +1209,20 @@ class PlayState extends MusicBeatState
 		add(scoreTxt);
 		
 
-		botplayTxt = new FlxText(400, timeBarBG.y + 55, FlxG.width - 800, "BOTPLAY", 32);
+		botplayTxt = new FlxText(395, timeBarBG.y + 55, FlxG.width - 800, "BOTPLAY", 32);
+		if(ClientPrefs.downScroll)
+			botplayTxt.y = timeBarBG.y - 78;
+		if(ClientPrefs.middleScroll) {
+			if(ClientPrefs.downScroll)
+				botplayTxt.y = botplayTxt.y - 78;
+			else
+				botplayTxt.y = botplayTxt.y + 78;
+		}
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		botplayTxt.scrollFactor.set();
 		botplayTxt.borderSize = 1.25;
 		botplayTxt.visible = cpuControlled;
 		add(botplayTxt);
-		if(ClientPrefs.downScroll) {
-			botplayTxt.y = timeBarBG.y - 78;
-		}
 
 		strumLineNotes.cameras = [camHUD];
 		grpNoteSplashes.cameras = [camHUD];
@@ -1357,8 +1380,6 @@ class PlayState extends MusicBeatState
 
 		super.create();
 
-		Paths.clearUnusedMemory();
-
 		for (key => type in precacheList)
 		{
 			//trace('Key $key is type $type');
@@ -1404,8 +1425,12 @@ class PlayState extends MusicBeatState
 	}
 
 	public function reloadHealthBarColors() {
-		healthBar.createFilledBar(FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]),
-			FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]));
+		var dadCol = dad.healthColorArray;
+		var bfCol = boyfriend.healthColorArray;
+		if (ClientPrefs.coloredHealthBar)
+			healthBar.createFilledBar(FlxColor.fromRGB(dadCol[0], dadCol[1], dadCol[2]), FlxColor.fromRGB(bfCol[0], bfCol[1], bfCol[2]));
+		else
+			healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
 
 		healthBar.updateBar();
 	}
@@ -2233,6 +2258,10 @@ class PlayState extends MusicBeatState
 
 	function startSong():Void
 	{
+		windowX = window.x;
+		windowY = window.y;
+		windowW = window.width;
+		windowH = window.height;
 		startingSong = false;
 
 		previousFrameTime = FlxG.game.ticks;
@@ -2330,12 +2359,13 @@ class PlayState extends MusicBeatState
 			{
 				for (i in 0...event[1].length)
 				{
-					var newEventNote:Array<Dynamic> = [event[0], event[1][i][0], event[1][i][1], event[1][i][2]];
+					var newEventNote:Array<Dynamic> = [event[0], event[1][i][0], event[1][i][1], event[1][i][2], event[1][i][3]];
 					var subEvent:EventNote = {
 						strumTime: newEventNote[0] + ClientPrefs.noteOffset,
 						event: newEventNote[1],
 						value1: newEventNote[2],
-						value2: newEventNote[3]
+						value2: newEventNote[3],
+						value3: newEventNote[4]
 					};
 					subEvent.strumTime -= eventNoteEarlyTrigger(subEvent);
 					eventNotes.push(subEvent);
@@ -2431,12 +2461,13 @@ class PlayState extends MusicBeatState
 		{
 			for (i in 0...event[1].length)
 			{
-				var newEventNote:Array<Dynamic> = [event[0], event[1][i][0], event[1][i][1], event[1][i][2]];
+				var newEventNote:Array<Dynamic> = [event[0], event[1][i][0], event[1][i][1], event[1][i][2], event[1][i][3]];
 				var subEvent:EventNote = {
 					strumTime: newEventNote[0] + ClientPrefs.noteOffset,
 					event: newEventNote[1],
 					value1: newEventNote[2],
-					value2: newEventNote[3]
+					value2: newEventNote[3],
+					value3: newEventNote[4]
 				};
 				subEvent.strumTime -= eventNoteEarlyTrigger(subEvent);
 				eventNotes.push(subEvent);
@@ -3286,7 +3317,11 @@ class PlayState extends MusicBeatState
 			if(eventNotes[0].value2 != null)
 				value2 = eventNotes[0].value2;
 
-			triggerEventNote(eventNotes[0].event, value1, value2);
+			var value3:String = '';
+			if (eventNotes[0].value3 != null)
+				value3 = eventNotes[0].value3;
+
+			triggerEventNote(eventNotes[0].event, value1, value2, value3);
 			eventNotes.shift();
 		}
 	}
@@ -3297,7 +3332,7 @@ class PlayState extends MusicBeatState
 		return pressed;
 	}
 
-	public function triggerEventNote(eventName:String, value1:String, value2:String) {
+	public function triggerEventNote(eventName:String, value1:String, value2:String, ?value3:String) {
 		switch(eventName) {
 			case 'Dadbattle Spotlight':
 				var val:Null<Int> = Std.parseInt(value1);
@@ -3648,7 +3683,8 @@ class PlayState extends MusicBeatState
 				var val2:Float = Std.parseFloat(value2);
 				if(Math.isNaN(val1)) val1 = 1;
 				if(Math.isNaN(val2)) val2 = 0;
-
+				
+				var ease = FunkinLua.getFlxEaseByString(value3);
 				var newValue:Float = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed', 1) * val1;
 
 				if(val2 <= 0)
@@ -3658,7 +3694,7 @@ class PlayState extends MusicBeatState
 				else
 				{
 					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {ease: FlxEase.linear, onComplete:
-						function (twn:FlxTween)
+						function(twn:FlxTween)
 						{
 							songSpeedTween = null;
 						}
@@ -4036,6 +4072,7 @@ class PlayState extends MusicBeatState
 		var precision:FlxText = new FlxText(playerStrums.members[1].x + playerStrums.members[1].width / 2, playerStrums.members[0].y - 40, '' + Math.round(Conductor.songPosition - note.strumTime) + ' ms');
 		precision.cameras = [camOther];
 		precision.y += 3;
+		precision.visible = !ClientPrefs.msCounter;
 		precision.setFormat(Paths.font("vcr.ttf"), 21, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		FlxTween.tween(precision, {y: precision.y - 3}, 0.01, {ease: FlxEase.bounceOut});
 
@@ -4795,6 +4832,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	@:access(flixel.FlxGame)
 	override function destroy() {
 		for (lua in luaArray) {
 			lua.call('onDestroy', []);
@@ -4810,6 +4848,10 @@ class PlayState extends MusicBeatState
 		#if hscript
 		FunkinLua.haxeInterp = null;
 		#end
+
+		if(!(cast FlxG.game._requestedState is PlayState)) {
+			Paths.clearUnusedMemory();
+		}
 		super.destroy();
 	}
 

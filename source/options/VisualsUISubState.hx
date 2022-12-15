@@ -68,6 +68,13 @@ class VisualsUISubState extends BaseOptionsMenu
 			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 
+		var option:Option = new Option('Hide Time Bar Box',
+			'Uncheck this if you want to show the time bar box.',
+			'invisibleTimeBar',
+			'bool',
+			true);
+		addOption(option);
+
 		var option:Option = new Option('Flashing Lights',
 			"Uncheck this if you're sensitive to flashing lights!",
 			'flashing',
@@ -88,6 +95,13 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool',
 			true);
 		addOption(option);
+
+		var option:Option = new Option('Icon Colored Health Bar',
+		    "If unchecked, the health bar will have set colors\nrather than colors based on the icons.",
+		    'coloredHealthBar',
+		    'bool',
+		    true);
+	    addOption(option);
 
 		var option:Option = new Option('Health Bar Transparency',
 			'How much transparent should the health bar and icons be.',

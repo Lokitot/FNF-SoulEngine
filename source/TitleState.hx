@@ -4,6 +4,7 @@ package;
 import Discord.DiscordClient;
 import sys.thread.Thread;
 #end
+import flash.system.System;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -48,6 +49,9 @@ typedef TitleData =
 	starty:Float,
 	gfx:Float,
 	gfy:Float,
+	gfscalex:Float,
+	gfscaley:Float,
+	gfantialiasing:Bool,
 	backgroundSprite:String,
 	bpm:Int
 }
@@ -328,7 +332,8 @@ class TitleState extends MusicBeatState
 				gfDance.animation.addByIndices('danceLeft', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
 				gfDance.animation.addByIndices('danceRight', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
 		}
-		gfDance.antialiasing = ClientPrefs.globalAntialiasing;
+		gfDance.scale.set(titleJSON.gfscalex, titleJSON.gfscaley);
+		gfDance.antialiasing = titleJSON.gfantialiasing;
 
 		add(gfDance);
 		gfDance.shader = swagShader.shader;
@@ -336,7 +341,7 @@ class TitleState extends MusicBeatState
 		logoBl.shader = swagShader.shader;
 
 		titleText = new FlxSprite(titleJSON.startx, titleJSON.starty);
-		#if (desktop && MODS_ALLOWED)
+		#if MODS_ALLOWED
 		var path = "mods/" + Paths.currentModDirectory + "/images/titleEnter.png";
 		//trace(path, FileSystem.exists(path));
 		if (!FileSystem.exists(path)){
@@ -419,7 +424,23 @@ class TitleState extends MusicBeatState
 
 	function getIntroTextShit():Array<Array<String>>
 	{
-		var fullText:String = Assets.getText(Paths.txt('introText'));
+		var moddedFullText:String = '';
+
+		#if MODS_ALLOWED
+		var path = "mods/" + Paths.currentModDirectory + "/introText.txt";
+		if (!FileSystem.exists(path)){
+			path = "mods/introText.txt";
+		}
+		if (!FileSystem.exists(path)){
+			path = null;
+		}
+		if (path != null){
+			moddedFullText = File.getContent(path);
+		}			
+		#end
+
+		var fullText:String = Assets.getText(Paths.txt('introText') #if MODS_ALLOWED + (moddedFullText != '' ? '\n' + moddedFullText : '') #end);
+		//trace(fullText);
 
 		var firstArray:Array<String> = fullText.split('\n');
 		var swagGoodArray:Array<Array<String>> = [];
@@ -443,6 +464,11 @@ class TitleState extends MusicBeatState
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
+
+		if (FlxG.keys.justPressed.ESCAPE)
+			{
+				System.exit(0); // If it 1 or -1 it will have a problem
+			}
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
 

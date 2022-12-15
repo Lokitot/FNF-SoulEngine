@@ -61,11 +61,13 @@ class FunkinLua {
 	public var scriptName:String = '';
 	public var closed:Bool = false;
 
+	public var needsValue3:Bool;
+
 	#if hscript
 	public static var haxeInterp:Interp = null;
 	#end
 	
-	public function new(script:String) {
+	public function new(script:String, ?fromString:Bool = false) {
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
@@ -77,6 +79,8 @@ class FunkinLua {
 		//LuaL.dostring(lua, CLENSE);
 		try{
 			var result:Dynamic = LuaL.dofile(lua, script);
+			if (fromString)
+				result = LuaL.dostring(lua, script);
 			var resultStr:String = Lua.tostring(lua, result);
 			if(resultStr != null && result != 0) {
 				trace('Error on lua script! ' + resultStr);
@@ -127,6 +131,12 @@ class FunkinLua {
 		// Screen stuff
 		set('screenWidth', FlxG.width);
 		set('screenHeight', FlxG.height);
+
+		// Window shit
+		set('windowX', PlayState.instance.window.x);
+		set('windowY', PlayState.instance.window.y);
+		set('windowW', PlayState.instance.window.width);
+		set('windowH', PlayState.instance.window.height);
 
 		// PlayState cringe ass nae nae bullcrap
 		set('curBeat', 0);
@@ -205,6 +215,11 @@ class FunkinLua {
 		set('buildTarget', 'unknown');
 		#end
 
+		Lua_helper.add_callback(lua, "setTheNeedOfValue3", function(?need:Bool = false)
+			{
+				return this.needsValue3 = need;
+			});
+		
 		Lua_helper.add_callback(lua, "getRunningScripts", function(){
 			var runningScripts:Array<String> = [];
 			for (idx in 0...PlayState.instance.luaArray.length)
@@ -709,6 +724,9 @@ class FunkinLua {
 			@:privateAccess
 			var killMe:Array<String> = variable.split('.');
 			if(killMe.length > 1) {
+				if(!ClientPrefs.globalAntialiasing && killMe[killMe.length-1] == 'antialiasing') {
+					value = false;
+				}
 				setVarInArray(getPropertyLoopThingWhatever(killMe), killMe[killMe.length-1], value);
 				return true;
 			}
@@ -1232,7 +1250,7 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "precacheMusic", function(name:String) {
 			CoolUtil.precacheMusic(name);
 		});
-		Lua_helper.add_callback(lua, "triggerEvent", function(name:String, arg1:Dynamic, arg2:Dynamic) {
+		Lua_helper.add_callback(lua, "triggerEvent", function(name:String, arg1:Dynamic, arg2:Dynamic, ?arg3:Dynamic) {
 			var value1:String = arg1;
 			var value2:String = arg2;
 			PlayState.instance.triggerEventNote(name, value1, value2);
@@ -2056,6 +2074,10 @@ class FunkinLua {
 			#end
 		});
 
+		Lua_helper.add_callback(lua, "openUrl", function(url:String) {
+			CoolUtil.browserLoad(url);
+        });
+
 
 		// LUA TEXTS
 		Lua_helper.add_callback(lua, "makeLuaText", function(tag:String, text:String, width:Int, x:Float, y:Float) {
@@ -2661,47 +2683,49 @@ class FunkinLua {
 	}
 
 	//Better optimized than using some getProperty shit or idk
-	function getFlxEaseByString(?ease:String = '') {
-		switch(ease.toLowerCase().trim()) {
-			case 'backin': return FlxEase.backIn;
-			case 'backinout': return FlxEase.backInOut;
-			case 'backout': return FlxEase.backOut;
-			case 'bouncein': return FlxEase.bounceIn;
-			case 'bounceinout': return FlxEase.bounceInOut;
-			case 'bounceout': return FlxEase.bounceOut;
-			case 'circin': return FlxEase.circIn;
-			case 'circinout': return FlxEase.circInOut;
-			case 'circout': return FlxEase.circOut;
-			case 'cubein': return FlxEase.cubeIn;
-			case 'cubeinout': return FlxEase.cubeInOut;
-			case 'cubeout': return FlxEase.cubeOut;
-			case 'elasticin': return FlxEase.elasticIn;
-			case 'elasticinout': return FlxEase.elasticInOut;
-			case 'elasticout': return FlxEase.elasticOut;
-			case 'expoin': return FlxEase.expoIn;
-			case 'expoinout': return FlxEase.expoInOut;
-			case 'expoout': return FlxEase.expoOut;
-			case 'quadin': return FlxEase.quadIn;
-			case 'quadinout': return FlxEase.quadInOut;
-			case 'quadout': return FlxEase.quadOut;
-			case 'quartin': return FlxEase.quartIn;
-			case 'quartinout': return FlxEase.quartInOut;
-			case 'quartout': return FlxEase.quartOut;
-			case 'quintin': return FlxEase.quintIn;
-			case 'quintinout': return FlxEase.quintInOut;
-			case 'quintout': return FlxEase.quintOut;
-			case 'sinein': return FlxEase.sineIn;
-			case 'sineinout': return FlxEase.sineInOut;
-			case 'sineout': return FlxEase.sineOut;
-			case 'smoothstepin': return FlxEase.smoothStepIn;
-			case 'smoothstepinout': return FlxEase.smoothStepInOut;
-			case 'smoothstepout': return FlxEase.smoothStepInOut;
-			case 'smootherstepin': return FlxEase.smootherStepIn;
-			case 'smootherstepinout': return FlxEase.smootherStepInOut;
-			case 'smootherstepout': return FlxEase.smootherStepOut;
-		}
-		return FlxEase.linear;
-	}
+	public static function getFlxEaseByString(?ease:String = '') 
+		{
+			return switch (ease.toLowerCase().trim()) 
+			{
+				case 'backin': FlxEase.backIn;
+				case 'backinout': FlxEase.backInOut;
+				case 'backout': FlxEase.backOut;
+				case 'bouncein': FlxEase.bounceIn;
+				case 'bounceinout': FlxEase.bounceInOut;
+				case 'bounceout': FlxEase.bounceOut;
+				case 'circin': FlxEase.circIn;
+				case 'circinout': FlxEase.circInOut;
+				case 'circout': FlxEase.circOut;
+				case 'cubein': FlxEase.cubeIn;
+				case 'cubeinout': FlxEase.cubeInOut;
+				case 'cubeout': FlxEase.cubeOut;
+				case 'elasticin': FlxEase.elasticIn;
+				case 'elasticinout': FlxEase.elasticInOut;
+				case 'elasticout': FlxEase.elasticOut;
+				case 'expoin': FlxEase.expoIn;
+				case 'expoinout': FlxEase.expoInOut;
+				case 'expoout': FlxEase.expoOut;
+				case 'quadin': FlxEase.quadIn;
+				case 'quadinout': FlxEase.quadInOut;
+				case 'quadout': FlxEase.quadOut;
+				case 'quartin': FlxEase.quartIn;
+				case 'quartinout': FlxEase.quartInOut;
+				case 'quartout': FlxEase.quartOut;
+				case 'quintin': FlxEase.quintIn;
+				case 'quintinout': FlxEase.quintInOut;
+				case 'quintout': FlxEase.quintOut;
+				case 'sinein': FlxEase.sineIn;
+				case 'sineinout': FlxEase.sineInOut;
+				case 'sineout': FlxEase.sineOut;
+				case 'smoothstepin': FlxEase.smoothStepIn;
+				case 'smoothstepinout': FlxEase.smoothStepInOut;
+				case 'smoothstepout': FlxEase.smoothStepInOut;
+				case 'smootherstepin': FlxEase.smootherStepIn;
+				case 'smootherstepinout': FlxEase.smootherStepInOut;
+				case 'smootherstepout': FlxEase.smootherStepOut;
+				default: FlxEase.linear;
+	       }
+        }
 
 	function blendModeFromString(blend:String):BlendMode {
 		switch(blend.toLowerCase().trim()) {
@@ -2768,7 +2792,7 @@ class FunkinLua {
 
 			var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
 			var error:Dynamic = getErrorMessage();
-			if(!resultIsAllowed(lua, result))
+			if(!resultIsAllowed(lua, result) || error != null)
 			{
 				Lua.pop(lua, 1);
 				if(error != null) luaTrace("ERROR (" + func + "): " + error, false, false, FlxColor.RED);
@@ -2859,6 +2883,12 @@ class FunkinLua {
 
 		Lua.close(lua);
 		lua = null;
+		if (!FlxG.fullscreen) {	
+			//PlayState.instance.window.x = PlayState.instance.windowX;
+			//PlayState.instance.window.y = PlayState.instance.windowY;
+			PlayState.instance.window.width = PlayState.instance.windowW;
+			PlayState.instance.window.height = PlayState.instance.windowH;
+		}
 		#end
 	}
 

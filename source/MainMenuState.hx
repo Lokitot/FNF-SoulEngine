@@ -25,7 +25,7 @@ using StringTools;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var soulEngineVersion:String = '0.2.5'; //This is also used for Discord RPC
+	public static var soulEngineVersion:String = '0.2.6'; // THE GAME VERSION HERE (This is also used for Discord RPC)
 	public static var curSelected:Int = 0;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
@@ -73,28 +73,56 @@ class MainMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		var yScroll:Float = Math.max(0.25 - (0.05 * (optionShit.length - 4)), 0.1);
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
-		bg.scrollFactor.set(0, yScroll);
-		bg.setGraphicSize(Std.int(bg.width * 1.175));
-		bg.updateHitbox();
-		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.globalAntialiasing;
-		add(bg);
+		if(ClientPrefs.darkMode)
+		{
+		    var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('darkmode/menuBGDark'));
+		    bg.scrollFactor.set(0, yScroll);
+		    bg.setGraphicSize(Std.int(bg.width * 1.175));
+		    bg.updateHitbox();
+		    bg.screenCenter();
+		    bg.antialiasing = ClientPrefs.globalAntialiasing;
+		    add(bg);
+		}
+		else
+		{
+			var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
+		    bg.scrollFactor.set(0, yScroll);
+		    bg.setGraphicSize(Std.int(bg.width * 1.175));
+		    bg.updateHitbox();
+		    bg.screenCenter();
+		    bg.antialiasing = ClientPrefs.globalAntialiasing;
+		    add(bg);
+		}
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		add(camFollow);
 		add(camFollowPos);
 
-		magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
-		magenta.scrollFactor.set(0, yScroll);
-		magenta.setGraphicSize(Std.int(magenta.width * 1.175));
-		magenta.updateHitbox();
-		magenta.screenCenter();
-		magenta.visible = false;
-		magenta.antialiasing = ClientPrefs.globalAntialiasing;
-		magenta.color = 0xFFfd719b;
-		add(magenta);
+		if(ClientPrefs.darkMode)
+			{
+				magenta = new FlxSprite(-80).loadGraphic(Paths.image('darkmode/menuDesatDark'));
+				magenta.scrollFactor.set(0, yScroll);
+				magenta.setGraphicSize(Std.int(magenta.width * 1.175));
+				magenta.updateHitbox();
+				magenta.screenCenter();
+				magenta.visible = false;
+				magenta.antialiasing = ClientPrefs.globalAntialiasing;
+				magenta.color = 0xFFfd719b;
+				add(magenta);
+			}
+			else
+			{
+				magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
+				magenta.scrollFactor.set(0, yScroll);
+				magenta.setGraphicSize(Std.int(magenta.width * 1.175));
+				magenta.updateHitbox();
+				magenta.screenCenter();
+				magenta.visible = false;
+				magenta.antialiasing = ClientPrefs.globalAntialiasing;
+				magenta.color = 0xFFfd719b;
+				add(magenta);
+			}
 		
 		// magenta.scrollFactor.set();
 
