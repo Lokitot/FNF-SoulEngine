@@ -49,7 +49,7 @@ class FPS extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("VCR OSD Mono", 14, color);
+		defaultTextFormat = new TextFormat("VCR OSD Mono", 13, color);
 		autoSize = LEFT;
 		multiline = true;
 
@@ -92,15 +92,30 @@ class FPS extends TextField
 
 			if (memoryMegas > memoryTotal) memoryTotal = memoryMegas;
 
-			if (ClientPrefs.showMEM) text += memoryMegas + " MB / " + memoryTotal + " MB";
+			if (ClientPrefs.showRAM)
+			if (memoryMegas > 1000)
+				{
+					var memoryGB = (memoryMegas / 1000);
+					text += "RAM: " + FlxMath.roundDecimal(memoryGB, 2) + " GB" + "\n";
+
+					text += "RAM PEAK: " + memoryTotal + " MB" + "\n";
+				}
+				else
+				{
+					text += "RAM: " + memoryMegas + " MB" + "\n";
+
+					text += "RAM PEAK: " + memoryTotal + " MB" + "\n";
+				}
 			#end
+			
+			if (ClientPrefs.showVER) text += "VERSION: " + "v" + MainMenuState.soulEngineVersion;
 
 			if (text != null || text != '')
 				{
 					if (Main.fpsVar != null)
 						Main.fpsVar.visible = true;
 				}
-	
+
 			textColor = 0xFFFFFFFF;
 			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.framerate / 2)
 			{

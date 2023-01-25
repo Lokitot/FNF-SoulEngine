@@ -63,6 +63,17 @@ class Achievements {
 			}
 		}
 	}
+
+	public static function giveAchievement(achieve:String, achievementEnd:Void->Void = null):Void {
+		var achieveID:Int = Achievements.getAchievementIndex(achieve);
+		Main.toastManager.createToast(Paths.achievementImage('achievements/' + achieve), Achievements.achievementsStuff[achieveID][0], Achievements.achievementsStuff[achieveID][1], true);
+		if (achievementEnd != null)
+			Main.toastManager.onFinish = achievementEnd;
+
+		trace('Giving achievement ' + achieve);
+
+		ClientPrefs.saveSettings();
+	}
 }
 
 class AttachedAchievement extends FlxSprite {
@@ -80,6 +91,22 @@ class AttachedAchievement extends FlxSprite {
 		reloadAchievementImage();
 	}
 
+
+	public function forget()
+		{
+			if (Achievements.isAchievementUnlocked(tag))
+			{
+				if (FlxG.save.data.achievementsMap != null)
+				{
+					var savedStuff:Map<String, String> = FlxG.save.data.achievementsMap;
+					if (savedStuff.exists(tag))
+						savedStuff.remove(tag);
+					FlxG.save.data.achievementsMap = savedStuff;
+					loadGraphic(Paths.image('achievements/lockedachievement'));
+				}
+			}
+		}
+
 	public function reloadAchievementImage() {
 		if(Achievements.isAchievementUnlocked(tag)) {
 			loadGraphic(Paths.image('achievements/' + tag));
@@ -95,66 +122,5 @@ class AttachedAchievement extends FlxSprite {
 			setPosition(sprTracker.x - 130, sprTracker.y + 25);
 
 		super.update(elapsed);
-	}
-}
-
-class AchievementObject extends FlxSpriteGroup {
-	public var onFinish:Void->Void = null;
-	var alphaTween:FlxTween;
-	public function new(name:String, ?camera:FlxCamera = null)
-	{
-		super(x, y);
-		ClientPrefs.saveSettings();
-
-		var id:Int = Achievements.getAchievementIndex(name);
-		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
-		achievementBG.scrollFactor.set();
-
-		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.image('achievements/' + name));
-		achievementIcon.scrollFactor.set();
-		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
-		achievementIcon.updateHitbox();
-		achievementIcon.antialiasing = ClientPrefs.globalAntialiasing;
-
-		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, Achievements.achievementsStuff[id][0], 16);
-		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
-		achievementName.scrollFactor.set();
-
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, Achievements.achievementsStuff[id][1], 16);
-		achievementText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
-		achievementText.scrollFactor.set();
-
-		add(achievementBG);
-		add(achievementName);
-		add(achievementText);
-		add(achievementIcon);
-
-		@:privateAccess
-		var cam:Array<FlxCamera> = FlxG.cameras.defaults;
-		if(camera != null) {
-			cam = [camera];
-		}
-		alpha = 0;
-		achievementBG.cameras = cam;
-		achievementName.cameras = cam;
-		achievementText.cameras = cam;
-		achievementIcon.cameras = cam;
-		alphaTween = FlxTween.tween(this, {alpha: 1}, 0.5, {onComplete: function (twn:FlxTween) {
-			alphaTween = FlxTween.tween(this, {alpha: 0}, 0.5, {
-				startDelay: 2.5,
-				onComplete: function(twn:FlxTween) {
-					alphaTween = null;
-					remove(this);
-					if(onFinish != null) onFinish();
-				}
-			});
-		}});
-	}
-
-	override function destroy() {
-		if(alphaTween != null) {
-			alphaTween.cancel();
-		}
-		super.destroy();
 	}
 }

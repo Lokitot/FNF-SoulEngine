@@ -45,11 +45,18 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Dark Mode',
-		   'Every dark mode ever.',
+		   'Check this to active the dark mode',
 		   'darkMode',
 		   'bool',
 		   true);
 	    addOption(option);
+
+		/*var option:Option = new Option('Shaders',
+		   'If checked, will display shaders in the songs,\nHARD CODED ONLY\nUsed for Thorns',
+		   'shaders',
+		   'bool',
+		   true);
+	    addOption(option);*/
 
 		var option:Option = new Option('Max Optimization',
 			'If checked, disables everything except the HUD.',
@@ -67,6 +74,13 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeAntiAliasing; //Changing onChange is only needed if you want to make a special interaction after it changes the value
 		addOption(option);
 
+		var option:Option = new Option('Auto Clean Memory',
+		     'If checked, It will automatically the game memory',
+		     'autoClean',
+	     	 'bool',
+	    	 true);
+	    addOption(option);
+
 		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 		var option:Option = new Option('Framerate',
 			"Pretty self explanatory, isn't it?",
@@ -81,6 +95,25 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeFramerate;
 		#end
 
+		#if desktop //no need for this at other platforms cuz only desktop has fullscreen as false by default (MAYBE I'LL TRY TO MAKE IT FOR FULLSCREEN MODE TOO)
+		var option:Option = new Option('Screen Resolution',
+			'Choose your preferred screen resolution.',
+			'screenRes',
+			'string',
+			'1280x720',
+			['640x360', '852x480', '960x540', '1280x720', '1920x1080', '3840x2160']);
+		addOption(option);
+		option.onChange = onChangeScreenRes;
+
+		var option:Option = new Option('Fullscreen',
+			'Should the game be maximized?',
+			'fullscreen',
+			'bool',
+			false);
+		addOption(option);
+		option.onChange = function() FlxG.fullscreen = ClientPrefs.fullscreen;
+		#end
+
 		/*
 		var option:Option = new Option('Persistent Cached Data',
 			'If checked, images loaded will stay in memory\nuntil the game is closed, this increases memory usage,\nbut basically makes reloading times instant.',
@@ -93,6 +126,17 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		super();
 	}
+
+	function onChangeScreenRes()
+		{
+			var res = ClientPrefs.screenRes.split('x');
+			FlxG.resizeWindow(Std.parseInt(res[0]), Std.parseInt(res[1]));
+	
+			FlxG.fullscreen = false;
+	
+			if(!FlxG.fullscreen)
+				FlxG.fullscreen = ClientPrefs.fullscreen;
+		}
 
 	function onChangeAntiAliasing()
 	{

@@ -123,6 +123,8 @@ class FunkinLua {
 		set('weekRaw', PlayState.storyWeek);
 		set('week', WeekData.weeksList[PlayState.storyWeek]);
 		set('seenCutscene', PlayState.seenCutscene);
+		set('require', true); // OAOAOAOOAA XDDDD
+		set('os', ClientPrefs.os);
 
 		// Camera poo
 		set('cameraX', 0);
@@ -1142,6 +1144,10 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "getHealth", function() {
 			return PlayState.instance.health;
+		});
+
+		Lua_helper.add_callback(lua, "removeHealth", function(value:Float = 0) {
+			PlayState.instance.health -= value;
 		});
 
 		Lua_helper.add_callback(lua, "getColorFromHex", function(color:String) {

@@ -13,7 +13,9 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
+import flixel.tweens.FlxTween.FlxTweenType;
 import lime.utils.Assets;
 import flixel.system.FlxSound;
 import openfl.utils.Assets as OpenFlAssets;
@@ -50,6 +52,8 @@ class FreeplayState extends MusicBeatState
 	var bg:FlxSprite;
 	var intendedColor:Int;
 	var colorTween:FlxTween;
+	
+	var repText:FlxText;
 
 	override function create()
 	{
@@ -157,7 +161,7 @@ class FreeplayState extends MusicBeatState
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 
-		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
+		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 92, 0xFF000000);
 		scoreBG.alpha = 0.6;
 		add(scoreBG);
 
@@ -171,6 +175,10 @@ class FreeplayState extends MusicBeatState
 		add(countText);
 		add(diffText);
 		add(scoreText);
+
+		repText = new FlxText(FlxG.width * 0.7 - 270, scoreText.y + 65, 600, "", 20);
+		repText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT);
+		add(repText);
 
 		if(curSelected >= songs.length) curSelected = 0;
 		bg.color = songs[curSelected].color;
@@ -219,6 +227,10 @@ class FreeplayState extends MusicBeatState
 		text.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, RIGHT);
 		text.scrollFactor.set();
 		add(text);
+
+		errorDisplay = new ErrorDisplay();
+		errorDisplay.addDisplay(this);
+
 		super.create();
 	}
 
@@ -287,6 +299,8 @@ class FreeplayState extends MusicBeatState
 		scoreText.text = 'PERSONAL BEST: ' + lerpScore + ' (' + ratingSplit.join('.') + '%)';
 		positionHighscore();
 
+		repText.text = 'Press SHIFT to show the replays of ${songs[curSelected].songName.toUpperCase()}';
+
 		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
 
 		var upP = controls.UI_UP_P;
@@ -294,6 +308,7 @@ class FreeplayState extends MusicBeatState
 		var accepted = controls.ACCEPT;
 		var space = FlxG.keys.justPressed.SPACE;
 		var ctrl = FlxG.keys.justPressed.CONTROL;
+		var shift = FlxG.keys.justPressed.SHIFT;
 
 		var shiftMult:Int = 1;
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
@@ -337,6 +352,7 @@ class FreeplayState extends MusicBeatState
 		else if (controls.UI_RIGHT_P)
 			changeDiff(1);
 		else if (upP || downP) changeDiff();
+		#if sys else if (shift && ClientPrefs.saveReplay) MusicBeatState.switchState(new ReplaySelectState(songs[curSelected].songName)); #end
 
 		if (controls.BACK)
 		{
@@ -361,59 +377,81 @@ class FreeplayState extends MusicBeatState
 				destroyFreeplayVocals();
 				FlxG.sound.music.volume = 0;
 				Paths.currentModDirectory = songs[curSelected].folder;
-				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
-				if (PlayState.SONG.needsVoices)
-					vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
-				else
-					vocals = new FlxSound();
+				var songFolder:String = songs[curSelected].songName.toLowerCase();
+				var songLowercase:String = Highscore.formatSong(songFolder, curDifficulty);
+				PlayState.SONG = Song.loadFromJson(songLowercase, songFolder);
 
-				FlxG.sound.list.add(vocals);
-				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
-				vocals.play();
-				vocals.persist = true;
-				vocals.looped = true;
-				vocals.volume = 0;            // vocals here seems to be glitched, idk why i'll try to fix it on some updates... maybe...........
-				Conductor.changeBPM(PlayState.SONG.bpm);
-				instPlaying = curSelected;
+				if (PlayState.SONG != null) {
+					if (PlayState.SONG.needsVoices)
+						vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+					else
+						vocals = new FlxSound();
+
+					FlxG.sound.list.add(vocals);
+					FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
+					vocals.play();
+					vocals.persist = true;
+					vocals.looped = true;
+					vocals.volume = 0; // vocals here seems to be glitched, idk why i'll try to fix it on some updates... maybe.....
+					Conductor.changeBPM(PlayState.SONG.bpm);
+					instPlaying = curSelected;
+				} else {/*
+					errorText.text = getErrorMessage('cannot play song, ', songFolder, songLowercase);
+					errorText.screenCenter();
+					coolErrorTween();*/
+					errorDisplay.text = getErrorMessage(missChart, 'chart required to play audio, $missFile', songFolder, songLowercase);
+					errorDisplay.displayError();
+				}
 				#end
 			}
 		}
 
 		else if (accepted)
 		{
-			persistentUpdate = false;
-			var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
-			var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
+			var songFolder:String = Paths.formatToSongPath(songs[curSelected].songName);
+			var songLowercase:String = Highscore.formatSong(songFolder, curDifficulty);
 			/*#if MODS_ALLOWED
-			if(!sys.FileSystem.exists(Paths.modsJson(songLowercase + '/' + poop)) && !sys.FileSystem.exists(Paths.json(songLowercase + '/' + poop))) {
+			if(!sys.FileSystem.exists(Paths.modsJson(songFolder + '/' + songLowercase)) && !sys.FileSystem.exists(Paths.json(songFolder + '/' + songLowercase))) {
 			#else
-			if(!OpenFlAssets.exists(Paths.json(songLowercase + '/' + poop))) {
+			if(!OpenFlAssets.exists(Paths.json(songFolder + '/' + songLowercase))) {
 			#end
-				poop = songLowercase;
+				songLowercase = songFolder;
 				curDifficulty = 1;
 				trace('Couldnt find file');
 			}*/
-			trace(poop);
+			//trace(songLowercase);
 
-			PlayState.SONG = Song.loadFromJson(poop, songLowercase);
-			PlayState.isStoryMode = false;
-			PlayState.storyDifficulty = curDifficulty;
+			PlayState.SONG = Song.loadFromJson(songLowercase, songFolder);
+			/*PlayState.isStoryMode = false;
+			PlayState.storyDifficulty = curDifficulty;*/
 
-			trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
-			if(colorTween != null) {
-				colorTween.cancel();
+			if (PlayState.SONG != null) {
+				persistentUpdate = false;
+
+				PlayState.isStoryMode = false;
+				PlayState.storyDifficulty = curDifficulty;
+
+				trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
+				if(colorTween != null) {
+					colorTween.cancel();
+				}
+
+				if (FlxG.keys.pressed.SHIFT){
+					LoadingState.loadAndSwitchState(new ChartingState());
+				}else{
+					LoadingState.loadAndSwitchState(new PlayState());
+				}
+
+				FlxG.sound.music.volume = 0;
+
+				destroyFreeplayVocals();
+			} else {/*
+				errorText.text = getErrorMessage('', songFolder, songLowercase);
+				errorText.screenCenter();
+				coolErrorTween();*/
+				errorDisplay.text = getErrorMessage(missChart, 'cannot play song, $missFile', songFolder, songLowercase);
+				errorDisplay.displayError();
 			}
-			
-			if (FlxG.keys.pressed.SHIFT){
-				LoadingState.loadAndSwitchState(new ChartingState());
-			}else{
-				LoadingState.loadAndSwitchState(new PlayState());
-			}
-
-			FlxG.sound.music.volume = 0;
-					
-			destroyFreeplayVocals();
 		}
 		else if(controls.RESET)
 		{

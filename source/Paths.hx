@@ -329,6 +329,22 @@ class Paths
 		return returnAsset;
 	}
 
+	public static function achievementImage(key:String):String {
+		#if MODS_ALLOWED
+		var modKey:String = modsImages(key);
+		if(FileSystem.exists(modKey)) {
+			return modKey;
+		}
+		#end
+
+		var path = getPath('images/$key.png', IMAGE);
+		if (OpenFlAssets.exists(path, IMAGE)) {
+			return path;
+		}
+		trace('oh no its returning null NOOOO');
+		return null;
+	}
+
 	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
 	{
 		#if sys
@@ -368,15 +384,15 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
+	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?isPath:Bool = false, ?library:String)
 	{
 		#if MODS_ALLOWED
-		if(FileSystem.exists(mods(currentModDirectory + '/' + key)) || FileSystem.exists(mods(key))) {
+		if(!ignoreMods && (FileSystem.exists(mods(currentModDirectory + '/' + key)) || FileSystem.exists(mods(key)))) {
 			return true;
 		}
 		#end
 
-		if(OpenFlAssets.exists(getPath(key, type))) {
+		if(OpenFlAssets.exists( (isPath ? key : getPath(key, type)) )) {
 			return true;
 		}
 		return false;

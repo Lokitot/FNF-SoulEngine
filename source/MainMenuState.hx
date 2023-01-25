@@ -6,7 +6,7 @@ import Discord.DiscordClient;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.FlxCamera;
+//import flixel.FlxCamera;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.effects.FlxFlicker;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -25,12 +25,12 @@ using StringTools;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var soulEngineVersion:String = '0.2.6'; // THE GAME VERSION HERE (This is also used for Discord RPC)
+	public static var soulEngineVersion:String = '0.2.7'; // THE GAME VERSION HERE (This is also used for Discord RPC and FPS txt)
 	public static var curSelected:Int = 0;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
-	private var camGame:FlxCamera;
-	private var camAchievement:FlxCamera;
+	//private var camGame:FlxCamera;
+	//private var camAchievement:FlxCamera;
 	
 	var optionShit:Array<String> = [
 		'story_mode',
@@ -59,13 +59,13 @@ class MainMenuState extends MusicBeatState
 		#end
 		debugKeys = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
 
-		camGame = new FlxCamera();
-		camAchievement = new FlxCamera();
-		camAchievement.bgColor.alpha = 0;
+		//camGame = new FlxCamera();
+		//camAchievement = new FlxCamera();
+		//camAchievement.bgColor.alpha = 0;
 
-		FlxG.cameras.reset(camGame);
-		FlxG.cameras.add(camAchievement);
-		FlxCamera.defaultCameras = [camGame];
+		//FlxG.cameras.reset(camGame);
+		//FlxG.cameras.add(camAchievement);
+		//FlxCamera.defaultCameras = [camGame];
 
 		transIn = FlxTransitionableState.defaultTransIn;
 		transOut = FlxTransitionableState.defaultTransOut;
@@ -157,6 +157,8 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollowPos, null, 1);
 
+		/*var versionShit:FlxText = new FlxText(12, FlxG.height - 64, 0, "Hello" + CoolSystemStuff.getUsername(), "having a good day? im proud of you! :)", 12);
+		versionShit.scrollFactor.set();*/
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Soul Engine v" + soulEngineVersion, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -177,8 +179,7 @@ class MainMenuState extends MusicBeatState
 			var achieveID:Int = Achievements.getAchievementIndex('friday_night_play');
 			if(!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID][2])) { //It's a friday night. WEEEEEEEEEEEEEEEEEE
 				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID][2], true);
-				giveAchievement();
-				ClientPrefs.saveSettings();
+				Achievements.giveAchievement('friday_night_play');
 			}
 		}
 		#end
@@ -186,14 +187,14 @@ class MainMenuState extends MusicBeatState
 		super.create();
 	}
 
-	#if ACHIEVEMENTS_ALLOWED
+	/*#if ACHIEVEMENTS_ALLOWED
 	// Unlocks "Freaky on a Friday Night" achievement
 	function giveAchievement() {
 		add(new AchievementObject('friday_night_play', camAchievement));
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 		trace('Giving achievement "friday_night_play"');
 	}
-	#end
+	#end*/
 
 	var selectedSomethin:Bool = false;
 
@@ -228,6 +229,14 @@ class MainMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				MusicBeatState.switchState(new TitleState());
 			}
+
+            #if desktop
+			if(FlxG.keys.justPressed.NINE)
+			{
+				CoolUtil.browserLoad('https://twitter.com/LeFishyOwU'); //FISHY SHIT
+				PlatformUtil.sendWindowsNotification("Lokitot.dll", "I FUCKING LOVE FIS");
+			}
+			#end
 
 			if (controls.ACCEPT)
 			{
@@ -268,6 +277,8 @@ class MainMenuState extends MusicBeatState
 										MusicBeatState.switchState(new FreeplayState());
 									case 'awards':
 										MusicBeatState.switchState(new AchievementsMenuState());
+									/*case 'mods':
+										MusicBeatState.switchState(new ModsMenuState());*/
 									case 'credits':
 										MusicBeatState.switchState(new CreditsState());
 									case 'options':

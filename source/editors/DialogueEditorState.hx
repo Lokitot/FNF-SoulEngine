@@ -61,7 +61,8 @@ class DialogueEditorState extends MusicBeatState
 		dialogueFile = {
 			dialogue: [
 				copyDefaultLine()
-			]
+			],
+			song: "Breakfast"
 		};
 		
 		character = new DialogueCharacter();
@@ -82,6 +83,7 @@ class DialogueEditorState extends MusicBeatState
 		add(box);
 
 		addEditorBox();
+		addSongBox();
 		FlxG.mouse.visible = true;
 
 		var addLineText:FlxText = new FlxText(10, 10, FlxG.width - 20, 'Press O to remove the current dialogue line, Press P to add another line after the current one.', 8);
@@ -114,6 +116,20 @@ class DialogueEditorState extends MusicBeatState
 		UI_box.scrollFactor.set();
 		UI_box.alpha = 0.8;
 		addDialogueLineUI();
+		add(UI_box);
+	}
+
+	function addSongBox() {
+		var tabs = [
+			{name: 'Background Music', label: 'Background Music'},
+		];
+		UI_box = new FlxUITabMenu(null, tabs, true);
+		UI_box.resize(100, 50);
+		UI_box.x = FlxG.width - UI_box.width - 250 - 20;
+		UI_box.y = 10;
+		UI_box.scrollFactor.set();
+		UI_box.alpha = 0.8;
+		addSongUI();
 		add(UI_box);
 	}
 
@@ -162,6 +178,18 @@ class DialogueEditorState extends MusicBeatState
 		tab_group.add(lineInputText);
 		tab_group.add(loadButton);
 		tab_group.add(saveButton);
+		UI_box.addGroup(tab_group);
+	}
+
+	var songInputText:FlxUIInputText;
+	function addSongUI() {
+		var tab_group = new FlxUI(null, UI_box);
+		tab_group.name = "Background Music";
+
+		songInputText = new FlxUIInputText(10, 5, 80, null, 8);
+		blockPressWhileTypingOn.push(songInputText);
+
+		tab_group.add(songInputText);
 		UI_box.addGroup(tab_group);
 	}
 
@@ -262,7 +290,7 @@ class DialogueEditorState extends MusicBeatState
 	}
 
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>) {
-		if(id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText)) {
+		if(id == FlxUIInputText.CHANGE_EVENT && (sender == characterInputText || sender == lineInputText || sender == songInputText)) {
 			if (sender == characterInputText)
 			{
 				character.reloadCharacterJson(characterInputText.text);
@@ -285,6 +313,8 @@ class DialogueEditorState extends MusicBeatState
 			{
 				reloadText(0);
 				dialogueFile.dialogue[curSelected].text = lineInputText.text;
+			} else if(sender == songInputText) {
+				dialogueFile.song = songInputText.text;
 			}
 			else if(sender == soundInputText)
 			{

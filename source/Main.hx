@@ -37,6 +37,7 @@ class Main extends Sprite
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 	public static var fpsVar:FPS;
+	public static var toastManager:ToastHandler;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -59,6 +60,9 @@ class Main extends Sprite
 		}
 	}
 
+	// public static var webmHandler:WebmHandler;
+
+
 	private function init(?E:Event):Void
 	{
 		if (hasEventListener(Event.ADDED_TO_STAGE))
@@ -73,6 +77,10 @@ class Main extends Sprite
 	{
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
+
+		var res = ClientPrefs.screenRes.split('x');
+		gameWidth = Std.parseInt(res[0]);
+		gameHeight = Std.parseInt(res[1]);
 
 		if (zoom == -1)
 		{
@@ -95,6 +103,9 @@ class Main extends Sprite
 			fpsVar.visible = ClientPrefs.showFPS;
 		}
 		#end
+
+		toastManager = new ToastHandler();
+		addChild(toastManager);
 		
 		#if desktop
 		FlxG.autoPause = ClientPrefs.autoPause;
@@ -109,6 +120,47 @@ class Main extends Sprite
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
 	}
+
+	      // Chroma Effect (Random Colors)
+		  var array:Array<FlxColor> = [
+			FlxColor.fromRGB(216, 34, 83),
+			FlxColor.fromRGB(255, 38, 0),
+			FlxColor.fromRGB(255, 80, 0),
+			FlxColor.fromRGB(255, 147, 0),
+			FlxColor.fromRGB(255, 199, 0),
+			FlxColor.fromRGB(255, 255, 0),
+			FlxColor.fromRGB(202, 255, 0),
+			FlxColor.fromRGB(255, 255, 0),
+			FlxColor.fromRGB(0, 146, 146),
+			FlxColor.fromRGB(0, 255, 255),
+			FlxColor.fromRGB(127, 0, 127),
+			FlxColor.fromRGB(255, 0, 255),
+			FlxColor.fromRGB(82, 40, 204),
+			FlxColor.fromRGB(150, 33, 146)
+		];
+		static var skippedFrames = 0;
+		public static var currentColor = 0;
+	
+		// Event Handlers
+		public function coloring():Void
+		{
+			// Hippity, Hoppity, your code is now my property (from KadeEngine)
+		    if (FlxG.save.data.fpsRainbow) {
+			if (currentColor >= array.length)
+				currentColor = 0;
+			currentColor = Math.round(FlxMath.lerp(0, array.length, skippedFrames / ClientPrefs.framerate));
+			(cast(Lib.current.getChildAt(0), Main)).changeFPSColor(array[currentColor]);
+			currentColor++;
+			skippedFrames++;
+			if (skippedFrames > ClientPrefs.framerate)
+				skippedFrames = 0;
+		}
+		else fpsVar.textColor = FlxColor.fromRGB(255, 255, 255);
+		}
+		public function changeFPSColor(color:FlxColor)
+		{
+			fpsVar.textColor = color;
+		}
 
 	// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!
 	// very cool person for real they don't get enough credit for their work

@@ -70,6 +70,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			true);
 		addOption(option);
 
+		/*var option:Option = new Option('Hard Coded Miss Anims',
+		    'If unchecked, your character with no miss animations\nwill no have "the goofy blue" thingy on it\nCredits to D&B team for the idea',
+		    'nomiss',
+		    'bool',
+		    true);
+    	addOption(option);*/
+
 		var option:Option = new Option('Disable Ms Counter',
 		    "If unchecked, milliseconds precision will be not displayed up your notes.",
 		    'msCounter',
@@ -88,6 +95,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.onChange = onToggleAutoPause;
 		#end
 
+		var option:Option = new Option('Enable Replays',
+	    	'If checked, game will save a recording of your game\nfor every song you beat in story mode.',
+	    	'saveReplay',
+	    	'bool',
+		    true);
+	    addOption(option);
 
 		var option:Option = new Option('Disable Reset Button',
 			"If checked, pressing Reset won't do anything.",
@@ -108,6 +121,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		option.onChange = onChangeHitsoundVolume;
+
+		var option:Option = new Option('Enable Windows Commands',
+			'If checked, allows lua commands that can for example:\nOpen a Chrome tab or even shutdown your PC\nSo be warned!',
+			'os',
+			'bool',
+			true);
+		addOption(option);
 
 		var option:Option = new Option('Rating Offset',
 			'Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later.',

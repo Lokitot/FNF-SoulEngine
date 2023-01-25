@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.addons.effects.FlxTrail;
 import flixel.animation.FlxBaseAnimation;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSort;
 import Section.SwagSection;
@@ -66,6 +67,7 @@ class Character extends FlxSprite
 	public var skipDance:Bool = false;
 
 	public var healthIcon:String = 'face';
+	public var doMissThing:Bool = true;
 	public var animationsArray:Array<AnimArray> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
@@ -230,9 +232,17 @@ class Character extends FlxSprite
 					}
 				} else {
 					quickAnimAdd('idle', 'BF idle dance');
+					quickAnimAdd('singUP', 'BF idle dance');
+					quickAnimAdd('singDOWN', 'BF idle dance');
+					quickAnimAdd('singLEFT', 'BF idle dance');
+					quickAnimAdd('singRIGHT', 'BF idle dance');
 				}
 				//trace('Loaded file to character ' + curCharacter);
 		}
+
+		if(animation.getByName('singUPmiss') == null)
+			doMissThing = true; //if for some reason you only have an up miss, why?
+
 		originalFlipX = flipX;
 
 		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
@@ -360,6 +370,10 @@ class Character extends FlxSprite
 	{
 		specialAnim = false;
 		animation.play(AnimName, Force, Reversed, Frame);
+
+	    //if(!ClientPrefs.nomiss) {
+        
+		//}
 
 		var daOffset = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))

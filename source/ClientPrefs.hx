@@ -12,16 +12,21 @@ class ClientPrefs {
 	public static var middleScroll:Bool = false;
 	public static var opponentStrums:Bool = true;
 	public static var showFPS:Bool = true;
-	public static var showMEM:Bool = true;
+	public static var showRAM:Bool = true;
+	public static var showVER:Bool = true;
+	public static var fpsRainbow:Bool = false; // the rainbow fps setting
 	#if desktop
 	public static var autoPause:Bool = true;
 	#end
 	public static var judgementCounter:Bool = true;
 	public static var flashing:Bool = true;
 	public static var globalAntialiasing:Bool = true;
+	public static var autoClean:Bool = true;
 	public static var splashOpacity:Float = 0.6;
 	public static var lowQuality:Bool = false;
 	public static var darkMode:Bool = false;
+	//public static var shaders:Bool = true;
+	public static var nomiss:Bool = true;
 	public static var maxOptimization:Bool = false;
 	public static var framerate:Int = 60;
 	public static var cursing:Bool = true;
@@ -37,10 +42,16 @@ class ClientPrefs {
 	public static var invisibleTimeBar:Bool = true;
 	public static var scoreZoom:Bool = true;
 	public static var noReset:Bool = false;
+	public static var os:Bool = true;
 	public static var healthBarAlpha:Float = 1;
 	public static var controllerMode:Bool = false;
+	#if desktop
+	public static var screenRes:String = '1280x720';
+	public static var fullscreen:Bool = false;
+	#end
 	public static var hitsoundVolume:Float = 0;
 	public static var pauseMusic:String = 'Tea Time';
+	public static var saveReplay:Bool = true;
 	public static var checkForUpdates:Bool = true;
 	public static var coloredHealthBar = true;
 	public static var gameplaySettings:Map<String, Dynamic> = [
@@ -108,15 +119,19 @@ class ClientPrefs {
 		FlxG.save.data.middleScroll = middleScroll;
 		FlxG.save.data.opponentStrums = opponentStrums;
 		FlxG.save.data.showFPS = showFPS;
-		FlxG.save.data.showMEM = showMEM;
+		FlxG.save.data.showRAM = showRAM;
+		FlxG.save.data.showVER = showVER;
 		#if desktop
 		FlxG.save.data.autoPause = autoPause;
 		#end
 		FlxG.save.data.flashing = flashing;
 		FlxG.save.data.globalAntialiasing = globalAntialiasing;
+		FlxG.save.data.autoClean = autoClean;
 		FlxG.save.data.splashOpacity = splashOpacity;
 		FlxG.save.data.lowQuality = lowQuality;
 		FlxG.save.data.darkMode = darkMode;
+		//FlxG.save.data.shaders = shaders;
+		FlxG.save.data.nomiss = nomiss;
 		FlxG.save.data.maxOptimization = maxOptimization;
 		FlxG.save.data.framerate = framerate;
 		FlxG.save.data.judgementCounter = judgementCounter;
@@ -133,6 +148,7 @@ class ClientPrefs {
 		FlxG.save.data.invisibleTimeBar = invisibleTimeBar;
 		FlxG.save.data.scoreZoom = scoreZoom;
 		FlxG.save.data.noReset = noReset;
+		FlxG.save.data.os = os;
 		FlxG.save.data.healthBarAlpha = healthBarAlpha;
 		FlxG.save.data.comboOffset = comboOffset;
 		FlxG.save.data.achievementsMap = Achievements.achievementsMap;
@@ -145,8 +161,13 @@ class ClientPrefs {
 		FlxG.save.data.safeFrames = safeFrames;
 		FlxG.save.data.gameplaySettings = gameplaySettings;
 		FlxG.save.data.controllerMode = controllerMode;
+		#if desktop
+		FlxG.save.data.screenRes = screenRes;
+		FlxG.save.data.fullscreen = fullscreen;
+		#end
 		FlxG.save.data.hitsoundVolume = hitsoundVolume;
 		FlxG.save.data.pauseMusic = pauseMusic;
+		FlxG.save.data.saveReplay = saveReplay;
 		FlxG.save.data.checkForUpdates = checkForUpdates;
 		FlxG.save.data.coloredHealthBar = coloredHealthBar;
 	
@@ -172,8 +193,14 @@ class ClientPrefs {
 		if(FlxG.save.data.showFPS != null) {
 			showFPS = FlxG.save.data.showFPS;
 		}
-		if (FlxG.save.data.showMEM != null) {
-			showMEM = FlxG.save.data.showMEM;
+		if(FlxG.save.data.showRAM != null) {
+			showRAM = FlxG.save.data.showRAM;
+		}
+		if (FlxG.save.data.showVER != null) {
+			showVER = FlxG.save.data.showVER;
+		}
+		if(FlxG.save.data.fpsRainbow != null) {
+			fpsRainbow = FlxG.save.data.fpsRainbow;
 		}
 		#if desktop
 		if(FlxG.save.data.autoPause != null) {
@@ -189,6 +216,9 @@ class ClientPrefs {
 		if(FlxG.save.data.globalAntialiasing != null) {
 			globalAntialiasing = FlxG.save.data.globalAntialiasing;
 		}
+		if(FlxG.save.data.autoClean != null) {
+			autoClean = FlxG.save.data.autoClean;
+		}
 		if(FlxG.save.data.splashOpacity != null) {
 			splashOpacity = FlxG.save.data.splashOpacity;
 		}
@@ -201,6 +231,12 @@ class ClientPrefs {
 		}
 		if(FlxG.save.data.darkMode != null) {
 			darkMode = FlxG.save.data.darkMode;
+		}
+		//if(FlxG.save.data.shaders != null) {
+		//	shaders = FlxG.save.data.shaders;
+		//}
+		if(FlxG.save.data.nomiss != null) {
+			nomiss = FlxG.save.data.nomiss;
 		}
 		if(FlxG.save.data.maxOptimization != null) {
 			maxOptimization = FlxG.save.data.maxOptimization;
@@ -251,6 +287,9 @@ class ClientPrefs {
 		if(FlxG.save.data.noReset != null) {
 			noReset = FlxG.save.data.noReset;
 		}
+		if(FlxG.save.data.os != null) {
+			os = FlxG.save.data.os;
+		}
 		if(FlxG.save.data.healthBarAlpha != null) {
 			healthBarAlpha = FlxG.save.data.healthBarAlpha;
 		}
@@ -276,11 +315,23 @@ class ClientPrefs {
 		if(FlxG.save.data.controllerMode != null) {
 			controllerMode = FlxG.save.data.controllerMode;
 		}
+		#if desktop
+		if(FlxG.save.data.screenRes != null) {
+			screenRes = FlxG.save.data.screenRes;
+		}
+		if(FlxG.save.data.fullscreen != null) {
+			fullscreen = FlxG.save.data.fullscreen;
+			FlxG.fullscreen = fullscreen;
+		}
+		#end
 		if(FlxG.save.data.hitsoundVolume != null) {
 			hitsoundVolume = FlxG.save.data.hitsoundVolume;
 		}
 		if(FlxG.save.data.pauseMusic != null) {
 			pauseMusic = FlxG.save.data.pauseMusic;
+		}
+		if(FlxG.save.data.saveReplay != null) {
+			saveReplay = FlxG.save.data.saveReplay;
 		}
 		if(FlxG.save.data.gameplaySettings != null)
 		{

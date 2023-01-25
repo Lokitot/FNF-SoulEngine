@@ -45,6 +45,9 @@ class NotesSubState extends MusicBeatSubstate
 	public function new() {
 		super();
 		
+		/*title = 'Note Settings';
+		rpcTitle = 'Note Settings Menu'; //for Discord Rich Presence*/
+
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFea71fd;
 		bg.screenCenter();

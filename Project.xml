@@ -48,10 +48,12 @@
 	<define name="LUA_ALLOWED" if="desktop" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="VIDEOS_ALLOWED" if="web || windows" unless="32bits || HXCPP_M32"/>
-	<define name="SWF_ALLOWED"/>
 	<define name="SOUL_WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
 	<define name="VANILLA_WATERMARKS" unless="SOUL_WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
 	<define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild"/> <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
+	<define name="SWF_ALLOWED"/>
+	<define name="MP3_ALLOWED"/>
+	<define name="WAV_ALLOWED"/>
 	<define name="CRASH_HANDLER" if="desktop release" />
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
@@ -136,6 +138,11 @@
 	<define name="hscriptPos" />
 	<haxeflag name="-dce no" />
 
+	<!--Extension .WEBM-->
+	<!--<haxelib name="actuate" />-->
+    <!--<haxelib name="extension-webm" if="windows"/> Make sure to use https://github.com/KadeDev/extension-webm/ -->
+    <!--<haxelib name="extension-webm" if="mac"/> Make sure to use https://github.com/KadeDev/extension-webm/ -->
+
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>
@@ -180,6 +187,9 @@
 
 	<!--Allow working memory greater than 1 Gig-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS"/>
+
+	<!--More functions w/ hxcpp-->
+	<haxedef name="HXCPP_GC_MOVING"/>    
 	
 	<!-- No deprecation warnings. Credits to Boxfunkin-->
 	<haxedef name="no-deprecation-warnings"/>

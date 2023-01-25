@@ -12,6 +12,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
@@ -182,6 +183,9 @@ class StoryMenuState extends MusicBeatState
 		add(scoreText);
 		add(txtWeekTitle);
 
+		errorDisplay = new ErrorDisplay();
+		errorDisplay.addDisplay(this);
+
 		changeWeek();
 		changeDifficulty();
 
@@ -285,7 +289,7 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (!weekIsLocked(loadedWeeks[curWeek].fileName))
 		{
-			if (stopspamming == false)
+			/*if (stopspamming == false)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 
@@ -294,7 +298,7 @@ class StoryMenuState extends MusicBeatState
 				var bf:MenuCharacter = grpWeekCharacters.members[1];
 				if(bf.character != '' && bf.hasConfirmAnimation) grpWeekCharacters.members[1].animation.play('confirm');
 				stopspamming = true;
-			}
+			}*/
 
 			// We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
 			var songArray:Array<String> = [];
@@ -313,14 +317,41 @@ class StoryMenuState extends MusicBeatState
 
 			PlayState.storyDifficulty = curDifficulty;
 
-			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
-			PlayState.campaignScore = 0;
-			PlayState.campaignMisses = 0;
-			new FlxTimer().start(1, function(tmr:FlxTimer)
-			{
-				LoadingState.loadAndSwitchState(new PlayState(), true);
-				FreeplayState.destroyFreeplayVocals();
-			});
+			var songFolder:String = PlayState.storyPlaylist[0].toLowerCase();
+			var songLowercase:String = songFolder + diffic;
+			PlayState.SONG = Song.loadFromJson(songLowercase, songFolder);
+
+			if (PlayState.SONG != null)
+				{
+				if (stopspamming == false)
+					{
+						FlxG.sound.play(Paths.sound('confirmMenu'));
+	
+						grpWeekText.members[curWeek].startFlashing();
+	
+						for (char in grpWeekCharacters.members)
+						{
+							if (char.character != '' && char.hasConfirmAnimation)
+							{
+								char.animation.play('confirm');
+							}
+						}
+						stopspamming = true;
+					}
+	
+					selectedWeek = true;
+	
+					PlayState.campaignScore = 0;
+					PlayState.campaignMisses = 0;
+					new FlxTimer().start(1, function(tmr:FlxTimer)
+					{
+						LoadingState.loadAndSwitchState(new PlayState(), true);
+						FreeplayState.destroyFreeplayVocals();
+					});
+				} else {
+					errorDisplay.text = getErrorMessage(missChart, 'cannot play week, $missFile', songFolder, songLowercase);
+					errorDisplay.displayError();
+				}
 		} else {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}

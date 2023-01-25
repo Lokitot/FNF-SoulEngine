@@ -9,6 +9,8 @@ import flixel.graphics.atlas.FlxAtlas;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.system.FlxSound;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
@@ -25,6 +27,7 @@ class CutsceneHandler extends FlxBasic
 	public var endTime:Float = 0;
 	public var objects:Array<FlxSprite> = [];
 	public var music:String = null;
+	public var sounds:Array<FlxSound> = [];
 	public function new()
 	{
 		super();
@@ -70,6 +73,29 @@ class CutsceneHandler extends FlxBasic
 			destroy();
 			PlayState.instance.remove(this);
 		}
+
+		if(FlxG.keys.justPressed.BACKSPACE)
+			{
+				finishCallback();
+				if(finishCallback2 != null) finishCallback2();
+	
+				for (spr in objects)
+				{
+					spr.kill();
+					PlayState.instance.remove(spr);
+					spr.destroy();
+				}
+	
+				for (sound in sounds)
+				{
+					if (sound.playing)
+						sound.stop();
+				}
+	
+				kill();
+				destroy();
+				PlayState.instance.remove(this);
+			}
 		
 		while(timedEvents.length > 0 && timedEvents[0][0] <= cutsceneTime)
 		{

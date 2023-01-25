@@ -185,15 +185,10 @@ class TitleState extends MusicBeatState
 		}
 		#end
 
-		if(!initialized)
+		if(!initialized && FlxG.save.data != null && ClientPrefs.fullscreen)
 		{
-			if(FlxG.save.data != null && FlxG.save.data.fullscreen)
-			{
-				FlxG.fullscreen = FlxG.save.data.fullscreen;
-				//trace('LOADED FULLSCREEN SETTING!!');
-			}
-			persistentUpdate = true;
-			persistentDraw = true;
+			FlxG.fullscreen = ClientPrefs.fullscreen;
+			//trace('LOADED FULLSCREEN SETTING!!');
 		}
 
 		if (FlxG.save.data.weekCompleted != null)
@@ -518,10 +513,11 @@ class TitleState extends MusicBeatState
 			
 			if(pressedEnter)
 			{
-				titleText.color = FlxColor.WHITE;
-				titleText.alpha = 1;
-				
-				if(titleText != null) titleText.animation.play('press');
+				if(titleText != null) {
+					titleText.color = FlxColor.WHITE;
+					titleText.alpha = 1;
+					titleText.animation.play('press');
+				};
 
 				FlxG.camera.flash(ClientPrefs.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
@@ -668,7 +664,7 @@ class TitleState extends MusicBeatState
 				case 2:
 					#if SOUL_WATERMARKS
 					createCoolText(['Soul Engine by'], 15);
-					#else
+					#elseif VANILLA_WATERMARKS
 					createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
 					#end
 				// credTextShit.visible = true;
@@ -677,7 +673,7 @@ class TitleState extends MusicBeatState
 					addMoreText('Lokitot', 15);
 					addMoreText('Frenanfloo', 15);
 					addMoreText('Ney', 15);
-					#else
+					#elseif VANILLA_WATERMARKS
 					addMoreText('present');
 					#end
 				// credTextShit.text += '\npresent...';
@@ -690,7 +686,7 @@ class TitleState extends MusicBeatState
 				case 6:
 					#if SOUL_WATERMARKS
 					createCoolText(['Not possible', 'without'], -40);
-					#else
+					#elseif VANILLA_WATERMARKS
 					createCoolText(['In association', 'with'], -40);
 					#end
 				case 8:

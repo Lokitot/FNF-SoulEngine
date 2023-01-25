@@ -410,6 +410,9 @@ class ChartingState extends MusicBeatState
 		zoomTxt.scrollFactor.set();
 		add(zoomTxt);
 
+		errorDisplay = new ErrorDisplay();
+		errorDisplay.addDisplay(this);
+
 		updateGrid();
 		super.create();
 	}
@@ -2085,6 +2088,16 @@ class ChartingState extends MusicBeatState
 			audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'));
 			//trace('Custom vocals found');
 		}
+		#if MP3_ALLOWED
+		else if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.mp3'))) {
+				audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.mp3'));
+		}
+		#end
+		#if WAV_ALLOWED
+		else if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.wav'))) {
+				audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.wav'));
+		}
+		#end
 		else { #end
 			var leVocals:String = Paths.getPath(currentSongName + '/Inst.' + Paths.SOUND_EXT, SOUND, 'songs');
 			if (OpenFlAssets.exists(leVocals)) { //Vanilla inst
@@ -2103,7 +2116,18 @@ class ChartingState extends MusicBeatState
 		if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'))) {
 			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'));
 			//trace('Custom vocals found');
-		} else { #end
+		} 
+		#if MP3_ALLOWED 
+		else if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.mp3'))) {
+			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.mp3'));
+		}
+		#end
+		#if WAV_ALLOWED
+		else if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.wav'))) {
+			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.wav'));
+		}
+		#end
+		    else { #end
 			var leVocals:String = Paths.getPath(currentSongName + '/Voices.' + Paths.SOUND_EXT, SOUND, 'songs');
 			if (OpenFlAssets.exists(leVocals)) { //Vanilla voices
 				audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
@@ -2739,12 +2763,25 @@ class ChartingState extends MusicBeatState
 	}
 
 	function setupSusNote(note:Note, beats:Float):FlxSprite {
+
+	/*function setupSusNote(i:Array<Dynamic>, note:Note, beats:Float):FlxSprite {
+		var daNoteInfo = i[1];
+		var data:Int = daNoteInfo % 4;
+
+		var colors:Array<Dynamic> = [ // yayy pain
+			[FlxColor.fromRGB(194, 75, 153)],
+			[FlxColor.fromRGB(0, 255, 255)],
+			[FlxColor.fromRGB(18, 250, 5)],
+			[FlxColor.fromRGB(249, 57, 63)]
+		];*/
+
 		var height:Int = Math.floor(FlxMath.remapToRange(note.sustainLength, 0, Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 		var minHeight:Int = Std.int((GRID_SIZE * zoomList[curZoom] / 2) + GRID_SIZE / 2);
 		if(height < minHeight) height = minHeight;
 		if(height < 1) height = 1; //Prevents error of invalid height
 
 		var spr:FlxSprite = new FlxSprite(note.x + (GRID_SIZE * 0.5) - 4, note.y + GRID_SIZE / 2).makeGraphic(8, height);
+		//var spr:FlxSprite = new FlxSprite(note.x + (GRID_SIZE * 0.5) - 4, note.y + GRID_SIZE / 2).makeGraphic(8, height, colors[data]);
 		return spr;
 	}
 
@@ -2963,16 +3000,29 @@ class ChartingState extends MusicBeatState
 	{
 		//shitty null fix, i fucking hate it when this happens
 		//make it look sexier if possible
-		if (CoolUtil.difficulties[PlayState.storyDifficulty] != CoolUtil.defaultDifficulty) {
-			if(CoolUtil.difficulties[PlayState.storyDifficulty] == null){
-				PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+		var songFolder:String = song.toLowerCase();
+		var diff:String = CoolUtil.difficulties[PlayState.storyDifficulty];
+
+		var loadedSong:Song.SwagSong;
+		if (diff != CoolUtil.defaultDifficulty)
+		{
+			if(diff == null){
+				loadedSong = Song.loadFromJson(songFolder, songFolder);
 			}else{
-				PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + CoolUtil.difficulties[PlayState.storyDifficulty], song.toLowerCase());
+				loadedSong = Song.loadFromJson(songFolder + "-" + diff, songFolder);
 			}
-		}else{
-		PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+		} else {
+			loadedSong = Song.loadFromJson(songFolder, songFolder);
 		}
-		MusicBeatState.resetState();
+
+		if (loadedSong != null)
+		{
+			PlayState.SONG = loadedSong;
+			MusicBeatState.resetState();
+		} else {
+			errorDisplay.text = getErrorMessage(missChart, 'cannot load JSON, $missFile', songFolder, songFolder);
+			errorDisplay.displayError();
+		}
 	}
 
 	function autosaveSong():Void

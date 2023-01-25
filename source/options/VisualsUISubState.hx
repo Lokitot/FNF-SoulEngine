@@ -54,7 +54,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Judgement Counter',
-		'If enabled, it will show you how much sicks and shits you hit.',
+		'If enabled, it will show you how much sicks and shits you hit, Maybe this option cause lag',
 		'judgementCounter',
 		'bool',
 		true);
@@ -123,12 +123,26 @@ class VisualsUISubState extends BaseOptionsMenu
 			true);
 		addOption(option);
 
-		var option:Option = new Option('Memory Counter',
-		    'If unchecked, hides the Memory Counter.',
-			'showMEM',
+		var option:Option = new Option('RAM Counter',
+		    'If unchecked, hides the RAM Counter.',
+			'showRAM',
 			'bool',
 			true);
 	    addOption(option);
+
+		var option:Option = new Option('Version Text',
+		    'If unchecked, hides the engine version',
+			'showVER',
+			'bool',
+			true);
+	    addOption(option);
+
+		/*var option:Option = new Option('Raindow FPS',
+	   	   'If checked, makes the FPS have a chroma effect.',
+	 	   'fpsRainbow',
+	 	   'bool',
+		   false);
+	    addOption(option);*/
 		#end
 		
 		var option:Option = new Option('Pause Screen Song:',
