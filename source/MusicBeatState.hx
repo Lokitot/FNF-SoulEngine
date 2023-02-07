@@ -138,8 +138,15 @@ class MusicBeatState extends FlxUIState
 		curStep = lastChange.stepTime + Math.floor(shit);
 	}
 
+	public static function justswitchState(nextState:FlxState) // without the custom transition
+		{
+			Main.mainClassState = Type.getClass(nextState);
+			FlxG.switchState(nextState);
+		}
+
 	public static function switchState(nextState:FlxState) {
 		// Custom made Trans in
+		Main.mainClassState = Type.getClass(nextState);
 		var curState:Dynamic = FlxG.state;
 		var leState:MusicBeatState = curState;
 		if(!FlxTransitionableState.skipNextTransIn) {

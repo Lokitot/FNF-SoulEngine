@@ -38,6 +38,7 @@ class Main extends Sprite
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 	public static var fpsVar:FPS;
 	public static var toastManager:ToastHandler;
+	public static var mainClassState:Class<FlxState> = TitleState; // Determine the main class state of the game
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 

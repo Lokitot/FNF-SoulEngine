@@ -147,6 +147,7 @@ class LoadingState extends MusicBeatState
 	
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)
 	{
+		Main.mainClassState = Type.getClass(target);
 		MusicBeatState.switchState(getNextState(target, stopMusic));
 	}
 	

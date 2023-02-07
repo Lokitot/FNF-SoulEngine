@@ -116,6 +116,9 @@ class FPS extends TextField
 						Main.fpsVar.visible = true;
 				}
 
+			if (ClientPrefs.showSTATE)
+				text += "\nState: " + Main.mainClassState;
+
 			textColor = 0xFFFFFFFF;
 			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.framerate / 2)
 			{

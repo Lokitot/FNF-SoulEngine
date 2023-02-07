@@ -131,11 +131,18 @@ class VisualsUISubState extends BaseOptionsMenu
 	    addOption(option);
 
 		var option:Option = new Option('Version Text',
-		    'If unchecked, hides the engine version',
+		    'If unchecked, hides the engine version.',
 			'showVER',
 			'bool',
 			true);
 	    addOption(option);
+
+		var option:Option = new Option('Actual State Text',
+		    'If unchecked, hides the current state you are.',
+			'showSTATE',
+			'bool',
+			true);
+		addOption(option);
 
 		/*var option:Option = new Option('Raindow FPS',
 	   	   'If checked, makes the FPS have a chroma effect.',

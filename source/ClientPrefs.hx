@@ -14,6 +14,7 @@ class ClientPrefs {
 	public static var showFPS:Bool = true;
 	public static var showRAM:Bool = true;
 	public static var showVER:Bool = true;
+	public static var showSTATE:Bool = true;
 	public static var fpsRainbow:Bool = false; // the rainbow fps setting
 	#if desktop
 	public static var autoPause:Bool = true;
@@ -121,6 +122,7 @@ class ClientPrefs {
 		FlxG.save.data.showFPS = showFPS;
 		FlxG.save.data.showRAM = showRAM;
 		FlxG.save.data.showVER = showVER;
+		FlxG.save.data.showSTATE = showSTATE;
 		#if desktop
 		FlxG.save.data.autoPause = autoPause;
 		#end
@@ -198,6 +200,9 @@ class ClientPrefs {
 		}
 		if (FlxG.save.data.showVER != null) {
 			showVER = FlxG.save.data.showVER;
+		}
+		if (FlxG.save.data.showSTATE != null) {
+			showSTATE = FlxG.save.data.showSTATE;
 		}
 		if(FlxG.save.data.fpsRainbow != null) {
 			fpsRainbow = FlxG.save.data.fpsRainbow;
